@@ -1,101 +1,98 @@
--- Delta Executor Compatible Flying Car Script
-local s = script.Parent
-if not s then return end
+-- Universal Flying Car Script (No Seat Required)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
-local bv = Instance.new("BodyVelocity", s)
+local p = Players.LocalPlayer
+local character = p.Character or p.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Create flying objects
+local bv = Instance.new("BodyVelocity", humanoidRootPart)
 bv.MaxForce = Vector3.new()
+bv.Velocity = Vector3.new()
 
-local bg = Instance.new("BodyGyro", s)
+local bg = Instance.new("BodyGyro", humanoidRootPart)
 bg.MaxTorque = Vector3.new(4e3, 4e3, 4e3)
-bg.P, bg.D = 3e3, 500
+bg.P = 3e3
+bg.D = 500
+bg.CFrame = humanoidRootPart.CFrame
 
-local f, h, c = false, 12, 0
-local tR = Instance.new("RemoteEvent", s)
-tR.Name = "FlyToggle"
-
-local cR = Instance.new("RemoteEvent", s)
-cR.Name = "FlyClimb"
-
+local f = false
+local h = 12
+local c = 0
 local L = {}
+
+-- Create password check
+local passwordCorrect = false
+local correctPassword = "yourpass123"
+
 local rp = RaycastParams.new()
-rp.FilterDescendantsInstances = {s.Parent}
+rp.FilterDescendantsInstances = {character}
 rp.FilterType = Enum.RaycastFilterType.Exclude
 
-tR.OnServerEvent:Connect(function(p, k)
-	local t = os.clock()
-	if L[p.UserId] and t - L[p.UserId] < 1.5 then return end
-	if k ~= "yourpass123" then return end
-	local o = s.Occupant
-	if not o or game.Players:GetPlayerFromCharacter(o.Parent) ~= p then return end
-	L[p.UserId] = t
-	f = not f
-	bv.MaxForce = f and Vector3.new(1e9, 1e9, 1e9) or Vector3.new()
-	if not f then h = 12 end
-end)
-
-cR.OnServerEvent:Connect(function(p, d)
-	local o = s.Occupant
-	if not f or not o or game.Players:GetPlayerFromCharacter(o.Parent) ~= p then return end
-	c = (d == 1 or d == -1) and d or 0
-end)
-
-game.Players.PlayerRemoving:Connect(function(p)
-	L[p.UserId] = nil
-end)
-
-game:GetService("RunService").Heartbeat:Connect(function(dt)
-	local o = s.Occupant
-	if not o then
-		bv.MaxForce = Vector3.new()
-		f, c = false, 0
-		return
-	end
+-- Flying loop
+RunService.Heartbeat:Connect(function(dt)
+	if not character or not humanoidRootPart or not humanoidRootPart.Parent then return end
+	
 	if f then
 		h = math.clamp(h + c * 20 * dt, 4, 150)
-		local cf = s.CFrame
+		local cf = humanoidRootPart.CFrame
 		local r = workspace:Raycast(cf.Position, Vector3.new(0, -200, 0), rp)
 		local gY = r and r.Position.Y or cf.Position.Y - h
-		bv.Velocity = cf.LookVector * s.Throttle * 120 + Vector3.new(0, ((gY + h) - cf.Position.Y) * 8, 0)
-		bg.CFrame = cf * CFrame.Angles(0, -s.Steer * 3 * dt, 0)
+		bv.Velocity = cf.LookVector * 120 + Vector3.new(0, ((gY + h) - cf.Position.Y) * 8, 0)
+		bg.CFrame = cf * CFrame.Angles(0, -0 * 3 * dt, 0)
 	end
 end)
 
--- Local Script (Client-side) - SIMPLIFIED FOR DELTA
-local ls = Instance.new("LocalScript")
-ls.Source = [[
-local p = game.Players.LocalPlayer
-local U = game:GetService("UserInputService")
-local s = script.Parent.Parent
-local tR, cR
+-- Keyboard input for flying
+local UserInputService = game:GetService("UserInputService")
 
-repeat
-	tR = s:FindFirstChild("FlyToggle")
-	cR = s:FindFirstChild("FlyClimb")
-	wait(0.2)
-until tR and cR
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	
+	if input.KeyCode == Enum.KeyCode.Space and passwordCorrect then
+		f = not f
+		bv.MaxForce = f and Vector3.new(1e9, 1e9, 1e9) or Vector3.new()
+		if not f then 
+			h = 12
+			bv.Velocity = Vector3.new()
+		end
+	end
+	
+	if input.KeyCode == Enum.KeyCode.W and f then
+		c = 1
+	end
+	
+	if input.KeyCode == Enum.KeyCode.S and f then
+		c = -1
+	end
+end)
 
-wait(1)
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+	if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S then
+		c = 0
+	end
+end)
 
+-- Create Password GUI
 local PlayerGui = p:WaitForChild("PlayerGui")
 
--- Create Screen GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "FlyPasswordGui"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = PlayerGui
 
--- Create main frame (centered, large, VISIBLE)
+-- Main frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 600, 0, 300)
 mainFrame.Position = UDim2.new(0.5, -300, 0.5, -150)
 mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
-mainFrame.BorderSizePixel = 2
+mainFrame.BorderSizePixel = 3
 mainFrame.BorderColor3 = Color3.fromRGB(0, 255, 255)
 mainFrame.Parent = screenGui
-mainFrame.Visible = true
 
--- Create title
+-- Title
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Name = "Title"
 titleLabel.Size = UDim2.new(1, 0, 0, 80)
@@ -105,10 +102,10 @@ titleLabel.BorderSizePixel = 0
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 32
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.Text = "FLYING CAR PASSWORD"
+titleLabel.Text = "UNIVERSAL FLY SCRIPT"
 titleLabel.Parent = mainFrame
 
--- Create password label
+-- Password label
 local passLabel = Instance.new("TextLabel")
 passLabel.Name = "PassLabel"
 passLabel.Size = UDim2.new(1, -20, 0, 30)
@@ -121,7 +118,7 @@ passLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 passLabel.Text = "Enter Password:"
 passLabel.Parent = mainFrame
 
--- Create password textbox
+-- Password textbox
 local passBox = Instance.new("TextBox")
 passBox.Name = "PasswordBox"
 passBox.Size = UDim2.new(1, -20, 0, 50)
@@ -135,9 +132,8 @@ passBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 passBox.PlaceholderText = "Type password..."
 passBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 200)
 passBox.Parent = mainFrame
-passBox.Visible = true
 
--- Create submit button
+-- Submit button
 local submitButton = Instance.new("TextButton")
 submitButton.Name = "SubmitButton"
 submitButton.Size = UDim2.new(0, 200, 0, 50)
@@ -153,11 +149,20 @@ submitButton.Parent = mainFrame
 
 -- Submit function
 local function submitPass()
-	if passBox.Text ~= "" then
-		tR:FireServer(passBox.Text)
+	if passBox.Text == correctPassword then
+		passwordCorrect = true
+		titleLabel.Text = "PASSWORD ACCEPTED - PRESS SPACE TO FLY"
+		titleLabel.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
 		passBox.Text = ""
-		wait(0.5)
+		wait(2)
 		screenGui:Destroy()
+	else
+		titleLabel.Text = "WRONG PASSWORD!"
+		titleLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+		passBox.Text = ""
+		wait(1)
+		titleLabel.Text = "UNIVERSAL FLY SCRIPT"
+		titleLabel.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
 	end
 end
 
@@ -172,10 +177,11 @@ submitButton.MouseButton1Click:Connect(function()
 	submitPass()
 end)
 
--- Focus the textbox
+-- Auto focus
+wait(0.2)
 passBox:CaptureFocus()
 
-print("PASSWORD GUI LOADED - YOU SHOULD SEE A CYAN BORDERED BOX IN CENTER OF SCREEN")
-]]
-
-ls.Parent = s
+print("UNIVERSAL FLY SCRIPT LOADED!")
+print("PASSWORD BOX VISIBLE IN CENTER OF SCREEN")
+print("After entering correct password, press SPACE to fly")
+print("W = Climb | S = Descend")
