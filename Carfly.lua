@@ -1,6 +1,7 @@
--- Universal Flying Car Script (No Seat Required)
+-- Universal Flying Car Script (No Seat Required) - Mobile & Desktop
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local p = Players.LocalPlayer
 local character = p.Character or p.CharacterAdded:Wait()
@@ -20,11 +21,6 @@ bg.CFrame = humanoidRootPart.CFrame
 local f = false
 local h = 12
 local c = 0
-local L = {}
-
--- Create password check
-local passwordCorrect = false
-local correctPassword = "yourpass123"
 
 local rp = RaycastParams.new()
 rp.FilterDescendantsInstances = {character}
@@ -44,9 +40,11 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 end)
 
--- Keyboard input for flying
-local UserInputService = game:GetService("UserInputService")
+-- Password setup
+local passwordCorrect = false
+local correctPassword = "yourpass123"
 
+-- Keyboard input for flying (Desktop)
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 	
@@ -151,11 +149,12 @@ submitButton.Parent = mainFrame
 local function submitPass()
 	if passBox.Text == correctPassword then
 		passwordCorrect = true
-		titleLabel.Text = "PASSWORD ACCEPTED - PRESS SPACE TO FLY"
+		titleLabel.Text = "PASSWORD ACCEPTED!"
 		titleLabel.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
 		passBox.Text = ""
 		wait(2)
 		screenGui:Destroy()
+		createMobileControls()
 	else
 		titleLabel.Text = "WRONG PASSWORD!"
 		titleLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
@@ -177,11 +176,139 @@ submitButton.MouseButton1Click:Connect(function()
 	submitPass()
 end)
 
+-- Mobile Controls Function
+function createMobileControls()
+	local isTouchEnabled = UserInputService.TouchEnabled
+	
+	if not isTouchEnabled then
+		print("DESKTOP MODE - Press SPACE to fly, W/S to climb/descend")
+		return
+	end
+	
+	local mobileGui = Instance.new("ScreenGui")
+	mobileGui.Name = "MobileControlsGui"
+	mobileGui.ResetOnSpawn = false
+	mobileGui.Parent = PlayerGui
+	
+	-- FLY TOGGLE BUTTON (Large, Red, Bottom Right)
+	local flyButton = Instance.new("TextButton")
+	flyButton.Name = "FlyButton"
+	flyButton.Size = UDim2.new(0, 100, 0, 100)
+	flyButton.Position = UDim2.new(1, -120, 1, -120)
+	flyButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+	flyButton.BorderSizePixel = 2
+	flyButton.BorderColor3 = Color3.fromRGB(255, 200, 200)
+	flyButton.Font = Enum.Font.GothamBold
+	flyButton.TextSize = 24
+	flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	flyButton.Text = "FLY"
+	flyButton.Parent = mobileGui
+	
+	flyButton.MouseButton1Click:Connect(function()
+		f = not f
+		bv.MaxForce = f and Vector3.new(1e9, 1e9, 1e9) or Vector3.new()
+		if not f then 
+			h = 12
+			bv.Velocity = Vector3.new()
+			flyButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+			flyButton.Text = "FLY"
+		else
+			flyButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+			flyButton.Text = "FLYING"
+		end
+	end)
+	
+	-- UP BUTTON (Blue, Above Fly Button)
+	local upButton = Instance.new("TextButton")
+	upButton.Name = "UpButton"
+	upButton.Size = UDim2.new(0, 100, 0, 100)
+	upButton.Position = UDim2.new(1, -120, 1, -230)
+	upButton.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+	upButton.BorderSizePixel = 2
+	upButton.BorderColor3 = Color3.fromRGB(150, 200, 255)
+	upButton.Font = Enum.Font.GothamBold
+	upButton.TextSize = 36
+	upButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	upButton.Text = "↑"
+	upButton.Parent = mobileGui
+	
+	upButton.MouseButton1Down:Connect(function()
+		if f then c = 1 end
+	end)
+	
+	upButton.MouseButton1Up:Connect(function()
+		c = 0
+	end)
+	
+	upButton.TouchBegan:Connect(function()
+		if f then c = 1 end
+	end)
+	
+	upButton.TouchEnded:Connect(function()
+		c = 0
+	end)
+	
+	-- DOWN BUTTON (Blue, Below Fly Button)
+	local downButton = Instance.new("TextButton")
+	downButton.Name = "DownButton"
+	downButton.Size = UDim2.new(0, 100, 0, 100)
+	downButton.Position = UDim2.new(1, -120, 1, -10)
+	downButton.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+	downButton.BorderSizePixel = 2
+	downButton.BorderColor3 = Color3.fromRGB(150, 200, 255)
+	downButton.Font = Enum.Font.GothamBold
+	downButton.TextSize = 36
+	downButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	downButton.Text = "↓"
+	downButton.Parent = mobileGui
+	
+	downButton.MouseButton1Down:Connect(function()
+		if f then c = -1 end
+	end)
+	
+	downButton.MouseButton1Up:Connect(function()
+		c = 0
+	end)
+	
+	downButton.TouchBegan:Connect(function()
+		if f then c = -1 end
+	end)
+	
+	downButton.TouchEnded:Connect(function()
+		c = 0
+	end)
+	
+	-- STATUS LABEL
+	local statusLabel = Instance.new("TextLabel")
+	statusLabel.Name = "StatusLabel"
+	statusLabel.Size = UDim2.new(0, 300, 0, 50)
+	statusLabel.Position = UDim2.new(0, 10, 1, -60)
+	statusLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
+	statusLabel.BorderSizePixel = 2
+	statusLabel.BorderColor3 = Color3.fromRGB(0, 255, 255)
+	statusLabel.Font = Enum.Font.GothamBold
+	statusLabel.TextSize = 14
+	statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	statusLabel.Text = "Status: Ready"
+	statusLabel.Parent = mobileGui
+	
+	-- Update status label
+	RunService.Heartbeat:Connect(function()
+		if f then
+			statusLabel.Text = "Status: FLYING (Height: " .. math.floor(h) .. ")"
+		else
+			statusLabel.Text = "Status: Ready | Click FLY to start"
+		end
+	end)
+	
+	print("MOBILE CONTROLS CREATED")
+end
+
 -- Auto focus
 wait(0.2)
 passBox:CaptureFocus()
 
 print("UNIVERSAL FLY SCRIPT LOADED!")
 print("PASSWORD BOX VISIBLE IN CENTER OF SCREEN")
-print("After entering correct password, press SPACE to fly")
-print("W = Climb | S = Descend")
+print("DESKTOP: Press SPACE to fly, W/S to climb/descend")
+print("MOBILE: Use on-screen buttons")
