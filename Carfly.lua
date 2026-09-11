@@ -74,124 +74,165 @@ repeat
 	wait(0.2)
 until tR and cR
 
-local g = Instance.new("ScreenGui", p:WaitForChild("PlayerGui"))
-g.ResetOnSpawn = false
-g.IgnoreGuiInset = true
-
-local function mk(cl, pa, pr)
-	local o = Instance.new(cl, pa)
-	for k, v in pairs(pr) do
-		o[k] = v
-	end
-	return o
-end
-
-local function co(o, r)
-	Instance.new("UICorner", o).CornerRadius = UDim.new(0, r or 12)
-end
-
-local function st(o, c)
-	local x = Instance.new("UIStroke", o)
-	x.Color = c or Color3.new(1, 1, 1)
-	x.Thickness = 1.5
-	x.Transparency = 0.3
-end
-
-local function gr(o, a, b)
-	Instance.new("UIGradient", o).Color = ColorSequence.new(a, b)
-end
-
-if not U.TouchEnabled then
-	local pn = mk("Frame", g, {
-		Size = UDim2.new(0, 260, 0, 56),
-		Position = UDim2.new(0.5, -130, 0.85, 0),
-		BackgroundColor3 = Color3.fromRGB(25, 27, 35),
-		BackgroundTransparency = 0.15
-	})
-	co(pn, 14)
-	st(pn, Color3.fromRGB(90, 160, 255))
+pcall(function()
+	local PlayerGui = p:WaitForChild("PlayerGui", 5)
 	
-	local bx = mk("TextBox", pn, {
-		Size = UDim2.new(1, -20, 1, -16),
-		Position = UDim2.new(0, 10, 0, 8),
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamMedium,
-		TextSize = 16,
-		TextColor3 = Color3.fromRGB(230, 235, 245),
-		PlaceholderText = "Enter passcode...",
-		Text = ""
-	})
+	local g = Instance.new("ScreenGui")
+	g.Name = "FlyGui"
+	g.ResetOnSpawn = false
+	g.IgnoreGuiInset = true
+	g.Parent = PlayerGui
 	
-	bx.FocusLost:Connect(function(e)
-		if e then
-			tR:FireServer(bx.Text)
-			bx.Text = ""
+	local function mk(cl, pa, pr)
+		local o = Instance.new(cl, pa)
+		for k, v in pairs(pr) do
+			o[k] = v
 		end
-	end)
-else
-	-- Mobile Fly Button
-	local fb = mk("TextButton", g, {
-		Size = UDim2.new(0, 92, 0, 92),
-		Position = UDim2.new(1, -112, 1, -112),
-		Text = "Fly",
-		Font = Enum.Font.GothamBold,
-		TextSize = 28,
-		TextColor3 = Color3.new(1, 1, 1),
-		BackgroundColor3 = Color3.fromRGB(255, 90, 90),
-		AutoButtonColor = false
-	})
-	co(fb, 46)
-	st(fb, Color3.new(1, 1, 1))
-	gr(fb, Color3.fromRGB(255, 120, 120), Color3.fromRGB(255, 160, 160))
+		return o
+	end
 	
-	fb.MouseButton1Click:Connect(function()
-		tR:FireServer("yourpass123")
-	end)
+	local function co(o, r)
+		Instance.new("UICorner", o).CornerRadius = UDim.new(0, r or 12)
+	end
 	
-	-- Up Button
-	local ub = mk("TextButton", g, {
-		Size = UDim2.new(0, 92, 0, 92),
-		Position = UDim2.new(1, -112, 1, -220),
-		Text = "↑",
-		Font = Enum.Font.GothamBold,
-		TextSize = 32,
-		TextColor3 = Color3.new(1, 1, 1),
-		BackgroundColor3 = Color3.fromRGB(90, 160, 255),
-		AutoButtonColor = false
-	})
-	co(ub, 46)
-	st(ub)
-	gr(ub, Color3.fromRGB(120, 180, 255), Color3.fromRGB(160, 200, 255))
+	local function st(o, c)
+		local x = Instance.new("UIStroke", o)
+		x.Color = c or Color3.new(1, 1, 1)
+		x.Thickness = 1.5
+		x.Transparency = 0.3
+	end
 	
-	ub.MouseButton1Down:Connect(function()
-		cR:FireServer(1)
-	end)
-	ub.MouseButton1Up:Connect(function()
-		cR:FireServer(0)
-	end)
+	local function gr(o, a, b)
+		Instance.new("UIGradient", o).Color = ColorSequence.new(a, b)
+	end
 	
-	-- Down Button
-	local db = mk("TextButton", g, {
-		Size = UDim2.new(0, 92, 0, 92),
-		Position = UDim2.new(1, -112, 1, -16),
-		Text = "↓",
-		Font = Enum.Font.GothamBold,
-		TextSize = 32,
-		TextColor3 = Color3.new(1, 1, 1),
-		BackgroundColor3 = Color3.fromRGB(90, 160, 255),
-		AutoButtonColor = false
-	})
-	co(db, 46)
-	st(db)
-	gr(db, Color3.fromRGB(120, 180, 255), Color3.fromRGB(160, 200, 255))
-	
-	db.MouseButton1Down:Connect(function()
-		cR:FireServer(-1)
-	end)
-	db.MouseButton1Up:Connect(function()
-		cR:FireServer(0)
-	end)
-end
+	if not U.TouchEnabled then
+		-- Desktop: Password Input
+		local pn = mk("Frame", g, {
+			Name = "PasswordPanel",
+			Size = UDim2.new(0, 300, 0, 70),
+			Position = UDim2.new(0.5, -150, 0.85, 0),
+			BackgroundColor3 = Color3.fromRGB(25, 27, 35),
+			BackgroundTransparency = 0.15,
+			BorderSizePixel = 0
+		})
+		co(pn, 14)
+		st(pn, Color3.fromRGB(90, 160, 255))
+		
+		local bx = mk("TextBox", pn, {
+			Name = "PassInput",
+			Size = UDim2.new(1, -20, 0, 40),
+			Position = UDim2.new(0, 10, 0, 15),
+			BackgroundColor3 = Color3.fromRGB(35, 37, 45),
+			BackgroundTransparency = 0.2,
+			BorderSizePixel = 0,
+			Font = Enum.Font.GothamMedium,
+			TextSize = 16,
+			TextColor3 = Color3.fromRGB(230, 235, 245),
+			PlaceholderText = "Enter passcode...",
+			PlaceholderColor3 = Color3.fromRGB(150, 150, 150),
+			Text = "",
+			ClearTextOnFocus = false
+		})
+		co(bx, 8)
+		
+		bx.FocusLost:Connect(function(enterPressed)
+			if enterPressed and bx.Text ~= "" then
+				tR:FireServer(bx.Text)
+				bx.Text = ""
+			end
+		end)
+		
+		-- Alternative: Button to submit
+		local submitBtn = mk("TextButton", pn, {
+			Name = "SubmitBtn",
+			Size = UDim2.new(0, 80, 0, 30),
+			Position = UDim2.new(1, -95, 0, 15),
+			BackgroundColor3 = Color3.fromRGB(90, 160, 255),
+			BackgroundTransparency = 0.3,
+			BorderSizePixel = 0,
+			Font = Enum.Font.GothamBold,
+			TextSize = 14,
+			TextColor3 = Color3.new(1, 1, 1),
+			Text = "Submit"
+		})
+		co(submitBtn, 8)
+		st(submitBtn, Color3.fromRGB(90, 160, 255))
+		
+		submitBtn.MouseButton1Click:Connect(function()
+			if bx.Text ~= "" then
+				tR:FireServer(bx.Text)
+				bx.Text = ""
+			end
+		end)
+	else
+		-- Mobile: Buttons
+		local fb = mk("TextButton", g, {
+			Size = UDim2.new(0, 92, 0, 92),
+			Position = UDim2.new(1, -112, 1, -112),
+			Text = "Fly",
+			Font = Enum.Font.GothamBold,
+			TextSize = 28,
+			TextColor3 = Color3.new(1, 1, 1),
+			BackgroundColor3 = Color3.fromRGB(255, 90, 90),
+			AutoButtonColor = false,
+			BorderSizePixel = 0
+		})
+		co(fb, 46)
+		st(fb, Color3.new(1, 1, 1))
+		gr(fb, Color3.fromRGB(255, 120, 120), Color3.fromRGB(255, 160, 160))
+		
+		fb.MouseButton1Click:Connect(function()
+			tR:FireServer("yourpass123")
+		end)
+		
+		-- Up Button
+		local ub = mk("TextButton", g, {
+			Size = UDim2.new(0, 92, 0, 92),
+			Position = UDim2.new(1, -112, 1, -220),
+			Text = "↑",
+			Font = Enum.Font.GothamBold,
+			TextSize = 32,
+			TextColor3 = Color3.new(1, 1, 1),
+			BackgroundColor3 = Color3.fromRGB(90, 160, 255),
+			AutoButtonColor = false,
+			BorderSizePixel = 0
+		})
+		co(ub, 46)
+		st(ub)
+		gr(ub, Color3.fromRGB(120, 180, 255), Color3.fromRGB(160, 200, 255))
+		
+		ub.MouseButton1Down:Connect(function()
+			cR:FireServer(1)
+		end)
+		ub.MouseButton1Up:Connect(function()
+			cR:FireServer(0)
+		end)
+		
+		-- Down Button
+		local db = mk("TextButton", g, {
+			Size = UDim2.new(0, 92, 0, 92),
+			Position = UDim2.new(1, -112, 1, -16),
+			Text = "↓",
+			Font = Enum.Font.GothamBold,
+			TextSize = 32,
+			TextColor3 = Color3.new(1, 1, 1),
+			BackgroundColor3 = Color3.fromRGB(90, 160, 255),
+			AutoButtonColor = false,
+			BorderSizePixel = 0
+		})
+		co(db, 46)
+		st(db)
+		gr(db, Color3.fromRGB(120, 180, 255), Color3.fromRGB(160, 200, 255))
+		
+		db.MouseButton1Down:Connect(function()
+			cR:FireServer(-1)
+		end)
+		db.MouseButton1Up:Connect(function()
+			cR:FireServer(0)
+		end)
+	end
+end)
 ]]
 
 ls.Parent = s
