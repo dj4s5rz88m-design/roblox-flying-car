@@ -103,27 +103,27 @@ pcall(function()
 	end
 	
 	if not U.TouchEnabled then
-		-- Desktop: Large Visible Password Input
+		-- Desktop: Large Visible Password Input in CENTER
 		local titleLabel = mk("TextLabel", g, {
 			Name = "TitleLabel",
-			Size = UDim2.new(0, 400, 0, 40),
-			Position = UDim2.new(0.5, -200, 0.3, 0),
+			Size = UDim2.new(0, 400, 0, 50),
+			Position = UDim2.new(0.5, -200, 0.5, -150),
 			BackgroundColor3 = Color3.fromRGB(20, 20, 30),
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Font = Enum.Font.GothamBold,
-			TextSize = 24,
+			TextSize = 28,
 			TextColor3 = Color3.fromRGB(255, 200, 100),
 			Text = "ENTER FLY PASSWORD"
 		})
 		co(titleLabel, 10)
 		st(titleLabel, Color3.fromRGB(255, 200, 100))
 		
-		-- Password Input Box
+		-- Password Input Box - CENTERED
 		local pn = mk("Frame", g, {
 			Name = "PasswordPanel",
-			Size = UDim2.new(0, 400, 0, 100),
-			Position = UDim2.new(0.5, -200, 0.35, 0),
+			Size = UDim2.new(0, 400, 0, 120),
+			Position = UDim2.new(0.5, -200, 0.5, -50),
 			BackgroundColor3 = Color3.fromRGB(40, 40, 60),
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0
@@ -152,7 +152,7 @@ pcall(function()
 		local submitBtn = mk("TextButton", pn, {
 			Name = "SubmitBtn",
 			Size = UDim2.new(0, 150, 0, 40),
-			Position = UDim2.new(0.5, -75, 0, 55),
+			Position = UDim2.new(0.5, -75, 0, 70),
 			BackgroundColor3 = Color3.fromRGB(0, 150, 255),
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
