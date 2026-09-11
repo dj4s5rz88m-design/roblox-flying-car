@@ -80,7 +80,7 @@ pcall(function()
 	local g = Instance.new("ScreenGui")
 	g.Name = "FlyGui"
 	g.ResetOnSpawn = false
-	g.IgnoreGuiInset = true
+	g.IgnoreGuiInset = false
 	g.Parent = PlayerGui
 	
 	local function mk(cl, pa, pr)
@@ -98,73 +98,93 @@ pcall(function()
 	local function st(o, c)
 		local x = Instance.new("UIStroke", o)
 		x.Color = c or Color3.new(1, 1, 1)
-		x.Thickness = 1.5
-		x.Transparency = 0.3
-	end
-	
-	local function gr(o, a, b)
-		Instance.new("UIGradient", o).Color = ColorSequence.new(a, b)
+		x.Thickness = 2
+		x.Transparency = 0
 	end
 	
 	if not U.TouchEnabled then
-		-- Desktop: Password Input
+		-- Desktop: Large Visible Password Input
+		local titleLabel = mk("TextLabel", g, {
+			Name = "TitleLabel",
+			Size = UDim2.new(0, 400, 0, 40),
+			Position = UDim2.new(0.5, -200, 0.3, 0),
+			BackgroundColor3 = Color3.fromRGB(20, 20, 30),
+			BackgroundTransparency = 0,
+			BorderSizePixel = 0,
+			Font = Enum.Font.GothamBold,
+			TextSize = 24,
+			TextColor3 = Color3.fromRGB(255, 200, 100),
+			Text = "ENTER FLY PASSWORD"
+		})
+		co(titleLabel, 10)
+		st(titleLabel, Color3.fromRGB(255, 200, 100))
+		
+		-- Password Input Box
 		local pn = mk("Frame", g, {
 			Name = "PasswordPanel",
-			Size = UDim2.new(0, 300, 0, 70),
-			Position = UDim2.new(0.5, -150, 0.85, 0),
-			BackgroundColor3 = Color3.fromRGB(25, 27, 35),
-			BackgroundTransparency = 0.15,
+			Size = UDim2.new(0, 400, 0, 100),
+			Position = UDim2.new(0.5, -200, 0.35, 0),
+			BackgroundColor3 = Color3.fromRGB(40, 40, 60),
+			BackgroundTransparency = 0,
 			BorderSizePixel = 0
 		})
-		co(pn, 14)
-		st(pn, Color3.fromRGB(90, 160, 255))
+		co(pn, 10)
+		st(pn, Color3.fromRGB(0, 150, 255))
 		
 		local bx = mk("TextBox", pn, {
 			Name = "PassInput",
-			Size = UDim2.new(1, -20, 0, 40),
+			Size = UDim2.new(1, -20, 0, 50),
 			Position = UDim2.new(0, 10, 0, 15),
-			BackgroundColor3 = Color3.fromRGB(35, 37, 45),
-			BackgroundTransparency = 0.2,
+			BackgroundColor3 = Color3.fromRGB(60, 60, 90),
+			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Font = Enum.Font.GothamMedium,
-			TextSize = 16,
-			TextColor3 = Color3.fromRGB(230, 235, 245),
-			PlaceholderText = "Enter passcode...",
-			PlaceholderColor3 = Color3.fromRGB(150, 150, 150),
+			TextSize = 22,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			PlaceholderText = "Type password here...",
+			PlaceholderColor3 = Color3.fromRGB(200, 200, 200),
 			Text = "",
 			ClearTextOnFocus = false
 		})
 		co(bx, 8)
+		st(bx, Color3.fromRGB(100, 200, 255))
 		
-		bx.FocusLost:Connect(function(enterPressed)
-			if enterPressed and bx.Text ~= "" then
-				tR:FireServer(bx.Text)
-				bx.Text = ""
-			end
-		end)
-		
-		-- Alternative: Button to submit
 		local submitBtn = mk("TextButton", pn, {
 			Name = "SubmitBtn",
-			Size = UDim2.new(0, 80, 0, 30),
-			Position = UDim2.new(1, -95, 0, 15),
-			BackgroundColor3 = Color3.fromRGB(90, 160, 255),
-			BackgroundTransparency = 0.3,
+			Size = UDim2.new(0, 150, 0, 40),
+			Position = UDim2.new(0.5, -75, 0, 55),
+			BackgroundColor3 = Color3.fromRGB(0, 150, 255),
+			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Font = Enum.Font.GothamBold,
-			TextSize = 14,
+			TextSize = 18,
 			TextColor3 = Color3.new(1, 1, 1),
-			Text = "Submit"
+			Text = "SUBMIT"
 		})
 		co(submitBtn, 8)
-		st(submitBtn, Color3.fromRGB(90, 160, 255))
+		st(submitBtn, Color3.new(1, 1, 1))
 		
-		submitBtn.MouseButton1Click:Connect(function()
+		local function submitPassword()
 			if bx.Text ~= "" then
 				tR:FireServer(bx.Text)
 				bx.Text = ""
+				pn:Destroy()
+				titleLabel:Destroy()
+			end
+		end
+		
+		bx.FocusLost:Connect(function(enterPressed)
+			if enterPressed and bx.Text ~= "" then
+				submitPassword()
 			end
 		end)
+		
+		submitBtn.MouseButton1Click:Connect(function()
+			submitPassword()
+		end)
+		
+		-- Auto-focus the textbox
+		bx:CaptureFocus()
 	else
 		-- Mobile: Buttons
 		local fb = mk("TextButton", g, {
@@ -180,7 +200,6 @@ pcall(function()
 		})
 		co(fb, 46)
 		st(fb, Color3.new(1, 1, 1))
-		gr(fb, Color3.fromRGB(255, 120, 120), Color3.fromRGB(255, 160, 160))
 		
 		fb.MouseButton1Click:Connect(function()
 			tR:FireServer("yourpass123")
@@ -200,7 +219,6 @@ pcall(function()
 		})
 		co(ub, 46)
 		st(ub)
-		gr(ub, Color3.fromRGB(120, 180, 255), Color3.fromRGB(160, 200, 255))
 		
 		ub.MouseButton1Down:Connect(function()
 			cR:FireServer(1)
@@ -223,7 +241,6 @@ pcall(function()
 		})
 		co(db, 46)
 		st(db)
-		gr(db, Color3.fromRGB(120, 180, 255), Color3.fromRGB(160, 200, 255))
 		
 		db.MouseButton1Down:Connect(function()
 			cR:FireServer(-1)
