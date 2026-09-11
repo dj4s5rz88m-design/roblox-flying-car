@@ -42,7 +42,7 @@ end)
 
 -- Password setup
 local passwordCorrect = false
-local correctPassword = "yourpass123"
+local correctPassword = "qwertyuiopawsd"
 
 -- Keyboard input for flying (Desktop)
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
