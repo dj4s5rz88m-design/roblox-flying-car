@@ -60,7 +60,7 @@ game:GetService("RunService").Heartbeat:Connect(function(dt)
 	end
 end)
 
--- Local Script (Client-side)
+-- Local Script (Client-side) - SIMPLIFIED FOR DELTA
 local ls = Instance.new("LocalScript")
 ls.Source = [[
 local p = game.Players.LocalPlayer
@@ -74,224 +74,108 @@ repeat
 	wait(0.2)
 until tR and cR
 
-pcall(function()
-	local PlayerGui = p:WaitForChild("PlayerGui", 5)
-	
-	-- Create main screen gui
-	local g = Instance.new("ScreenGui")
-	g.Name = "FlyGui"
-	g.ResetOnSpawn = false
-	g.IgnoreGuiInset = true
-	g.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	g.Parent = PlayerGui
-	
-	if not U.TouchEnabled then
-		-- DARK BACKGROUND OVERLAY
-		local bg = Instance.new("Frame", g)
-		bg.Name = "Background"
-		bg.Size = UDim2.new(1, 0, 1, 0)
-		bg.Position = UDim2.new(0, 0, 0, 0)
-		bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-		bg.BackgroundTransparency = 0.4
-		bg.BorderSizePixel = 0
-		bg.ZIndex = 1
-		
-		-- MAIN CONTAINER - CENTERED
-		local container = Instance.new("Frame", g)
-		container.Name = "Container"
-		container.Size = UDim2.new(0, 500, 0, 280)
-		container.Position = UDim2.new(0.5, -250, 0.5, -140)
-		container.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-		container.BackgroundTransparency = 0
-		container.BorderSizePixel = 0
-		container.ZIndex = 2
-		
-		local corner = Instance.new("UICorner", container)
-		corner.CornerRadius = UDim.new(0, 15)
-		
-		local stroke = Instance.new("UIStroke", container)
-		stroke.Color = Color3.fromRGB(0, 200, 255)
-		stroke.Thickness = 3
-		stroke.Transparency = 0
-		
-		-- TITLE
-		local title = Instance.new("TextLabel", container)
-		title.Name = "Title"
-		title.Size = UDim2.new(1, 0, 0, 60)
-		title.Position = UDim2.new(0, 0, 0, 0)
-		title.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-		title.BackgroundTransparency = 0
-		title.BorderSizePixel = 0
-		title.Font = Enum.Font.GothamBold
-		title.TextSize = 32
-		title.TextColor3 = Color3.fromRGB(255, 255, 255)
-		title.Text = "🚗 FLY MODE 🚗"
-		title.ZIndex = 3
-		
-		local titleCorner = Instance.new("UICorner", title)
-		titleCorner.CornerRadius = UDim.new(0, 15)
-		
-		-- SUBTITLE
-		local subtitle = Instance.new("TextLabel", container)
-		subtitle.Name = "Subtitle"
-		subtitle.Size = UDim2.new(1, -20, 0, 35)
-		subtitle.Position = UDim2.new(0, 10, 0, 70)
-		subtitle.BackgroundTransparency = 1
-		subtitle.BorderSizePixel = 0
-		subtitle.Font = Enum.Font.GothamMedium
-		subtitle.TextSize = 16
-		subtitle.TextColor3 = Color3.fromRGB(200, 200, 255)
-		subtitle.Text = "Enter your password to activate flying:"
-		subtitle.ZIndex = 3
-		
-		-- PASSWORD INPUT BOX
-		local inputBox = Instance.new("TextBox", container)
-		inputBox.Name = "PasswordInput"
-		inputBox.Size = UDim2.new(1, -40, 0, 50)
-		inputBox.Position = UDim2.new(0, 20, 0, 110)
-		inputBox.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
-		inputBox.BackgroundTransparency = 0
-		inputBox.BorderSizePixel = 0
-		inputBox.Font = Enum.Font.GothamMedium
-		inputBox.TextSize = 24
-		inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-		inputBox.PlaceholderText = "Type password here..."
-		inputBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-		inputBox.Text = ""
-		inputBox.ClearTextOnFocus = false
-		inputBox.MultiLine = false
-		inputBox.ZIndex = 3
-		
-		local inputCorner = Instance.new("UICorner", inputBox)
-		inputCorner.CornerRadius = UDim.new(0, 8)
-		
-		local inputStroke = Instance.new("UIStroke", inputBox)
-		inputStroke.Color = Color3.fromRGB(100, 200, 255)
-		inputStroke.Thickness = 2
-		inputStroke.Transparency = 0
-		
-		-- SUBMIT BUTTON
-		local submitBtn = Instance.new("TextButton", container)
-		submitBtn.Name = "SubmitButton"
-		submitBtn.Size = UDim2.new(0, 180, 0, 45)
-		submitBtn.Position = UDim2.new(0.5, -90, 0, 220)
-		submitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
-		submitBtn.BackgroundTransparency = 0
-		submitBtn.BorderSizePixel = 0
-		submitBtn.Font = Enum.Font.GothamBold
-		submitBtn.TextSize = 18
-		submitBtn.TextColor3 = Color3.new(1, 1, 1)
-		submitBtn.Text = "✓ SUBMIT"
-		submitBtn.AutoButtonColor = false
-		submitBtn.ZIndex = 3
-		
-		local btnCorner = Instance.new("UICorner", submitBtn)
-		btnCorner.CornerRadius = UDim.new(0, 8)
-		
-		local btnStroke = Instance.new("UIStroke", submitBtn)
-		btnStroke.Color = Color3.fromRGB(200, 255, 200)
-		btnStroke.Thickness = 2
-		btnStroke.Transparency = 0
-		
-		-- BUTTON HOVER EFFECT
-		submitBtn.MouseEnter:Connect(function()
-			submitBtn.BackgroundColor3 = Color3.fromRGB(0, 230, 130)
-		end)
-		
-		submitBtn.MouseLeave:Connect(function()
-			submitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
-		end)
-		
-		-- SUBMIT FUNCTION
-		local function submitPassword()
-			if inputBox.Text ~= "" then
-				tR:FireServer(inputBox.Text)
-				inputBox.Text = ""
-				wait(0.5)
-				g:Destroy()
-			end
-		end
-		
-		-- ENTER KEY
-		inputBox.FocusLost:Connect(function(enterPressed)
-			if enterPressed then
-				submitPassword()
-			end
-		end)
-		
-		-- BUTTON CLICK
-		submitBtn.MouseButton1Click:Connect(function()
-			submitPassword()
-		end)
-		
-		-- AUTO FOCUS INPUT
-		wait(0.1)
-		inputBox:CaptureFocus()
-	else
-		-- MOBILE: Buttons
-		local fb = Instance.new("TextButton", g)
-		fb.Size = UDim2.new(0, 100, 0, 100)
-		fb.Position = UDim2.new(1, -120, 1, -120)
-		fb.Text = "FLY"
-		fb.Font = Enum.Font.GothamBold
-		fb.TextSize = 24
-		fb.TextColor3 = Color3.new(1, 1, 1)
-		fb.BackgroundColor3 = Color3.fromRGB(255, 90, 90)
-		fb.AutoButtonColor = false
-		fb.BorderSizePixel = 0
-		
-		local fbCorner = Instance.new("UICorner", fb)
-		fbCorner.CornerRadius = UDim.new(0, 50)
-		
-		fb.MouseButton1Click:Connect(function()
-			tR:FireServer("yourpass123")
-		end)
-		
-		-- UP BUTTON
-		local ub = Instance.new("TextButton", g)
-		ub.Size = UDim2.new(0, 100, 0, 100)
-		ub.Position = UDim2.new(1, -120, 1, -230)
-		ub.Text = "↑"
-		ub.Font = Enum.Font.GothamBold
-		ub.TextSize = 32
-		ub.TextColor3 = Color3.new(1, 1, 1)
-		ub.BackgroundColor3 = Color3.fromRGB(90, 160, 255)
-		ub.AutoButtonColor = false
-		ub.BorderSizePixel = 0
-		
-		local ubCorner = Instance.new("UICorner", ub)
-		ubCorner.CornerRadius = UDim.new(0, 50)
-		
-		ub.MouseButton1Down:Connect(function()
-			cR:FireServer(1)
-		end)
-		ub.MouseButton1Up:Connect(function()
-			cR:FireServer(0)
-		end)
-		
-		-- DOWN BUTTON
-		local db = Instance.new("TextButton", g)
-		db.Size = UDim2.new(0, 100, 0, 100)
-		db.Position = UDim2.new(1, -120, 1, -10)
-		db.Text = "↓"
-		db.Font = Enum.Font.GothamBold
-		db.TextSize = 32
-		db.TextColor3 = Color3.new(1, 1, 1)
-		db.BackgroundColor3 = Color3.fromRGB(90, 160, 255)
-		db.AutoButtonColor = false
-		db.BorderSizePixel = 0
-		
-		local dbCorner = Instance.new("UICorner", db)
-		dbCorner.CornerRadius = UDim.new(0, 50)
-		
-		db.MouseButton1Down:Connect(function()
-			cR:FireServer(-1)
-		end)
-		db.MouseButton1Up:Connect(function()
-			cR:FireServer(0)
-		end)
+wait(1)
+
+local PlayerGui = p:WaitForChild("PlayerGui")
+
+-- Create Screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FlyPasswordGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
+
+-- Create main frame (centered, large, VISIBLE)
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 600, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -300, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
+mainFrame.BorderSizePixel = 2
+mainFrame.BorderColor3 = Color3.fromRGB(0, 255, 255)
+mainFrame.Parent = screenGui
+mainFrame.Visible = true
+
+-- Create title
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "Title"
+titleLabel.Size = UDim2.new(1, 0, 0, 80)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+titleLabel.BorderSizePixel = 0
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 32
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Text = "FLYING CAR PASSWORD"
+titleLabel.Parent = mainFrame
+
+-- Create password label
+local passLabel = Instance.new("TextLabel")
+passLabel.Name = "PassLabel"
+passLabel.Size = UDim2.new(1, -20, 0, 30)
+passLabel.Position = UDim2.new(0, 10, 0, 90)
+passLabel.BackgroundTransparency = 1
+passLabel.BorderSizePixel = 0
+passLabel.Font = Enum.Font.GothamMedium
+passLabel.TextSize = 16
+passLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+passLabel.Text = "Enter Password:"
+passLabel.Parent = mainFrame
+
+-- Create password textbox
+local passBox = Instance.new("TextBox")
+passBox.Name = "PasswordBox"
+passBox.Size = UDim2.new(1, -20, 0, 50)
+passBox.Position = UDim2.new(0, 10, 0, 130)
+passBox.BackgroundColor3 = Color3.fromRGB(100, 100, 150)
+passBox.BorderSizePixel = 2
+passBox.BorderColor3 = Color3.fromRGB(0, 255, 255)
+passBox.Font = Enum.Font.GothamMedium
+passBox.TextSize = 20
+passBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+passBox.PlaceholderText = "Type password..."
+passBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 200)
+passBox.Parent = mainFrame
+passBox.Visible = true
+
+-- Create submit button
+local submitButton = Instance.new("TextButton")
+submitButton.Name = "SubmitButton"
+submitButton.Size = UDim2.new(0, 200, 0, 50)
+submitButton.Position = UDim2.new(0.5, -100, 0, 200)
+submitButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+submitButton.BorderSizePixel = 2
+submitButton.BorderColor3 = Color3.fromRGB(0, 255, 150)
+submitButton.Font = Enum.Font.GothamBold
+submitButton.TextSize = 20
+submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitButton.Text = "SUBMIT PASSWORD"
+submitButton.Parent = mainFrame
+
+-- Submit function
+local function submitPass()
+	if passBox.Text ~= "" then
+		tR:FireServer(passBox.Text)
+		passBox.Text = ""
+		wait(0.5)
+		screenGui:Destroy()
+	end
+end
+
+-- Connect events
+passBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		submitPass()
 	end
 end)
+
+submitButton.MouseButton1Click:Connect(function()
+	submitPass()
+end)
+
+-- Focus the textbox
+passBox:CaptureFocus()
+
+print("PASSWORD GUI LOADED - YOU SHOULD SEE A CYAN BORDERED BOX IN CENTER OF SCREEN")
 ]]
 
 ls.Parent = s
